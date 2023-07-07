@@ -19,7 +19,12 @@ Welcome to your new app.
 
 @code {
     Editor editorRef = default!;
-    EditorOptions options = new();
+    EditorOptions options = new()
+    {
+        PreviewStyle = PreviewStyles.Vertical,
+        Language = "zh-CN",
+        Theme = EditorThemes.Auto,
+    };
     string content = "Hello, world!";
     string html = "";
 

@@ -58,14 +58,6 @@ public class EditorOptions
     public virtual EditorModes InitialEditType { get; set; } = EditorModes.Markdown;
 
     /// <summary>
-    /// Gets or sets whether to set the editor as viewer. Default is <see langword="false"/>.
-    /// </summary>
-    /// <remarks>
-    /// The viewer cannot edit the content.
-    /// </remarks>
-    public virtual bool Viewer { get; set; } = true;
-
-    /// <summary>
     /// Gets or sets the events that will be invoked from the editor.
     /// </summary>
     /// <remarks>
@@ -184,12 +176,9 @@ public class EditorOptions
     public virtual object[]? WidgetRules { get; set; }
 
     /// <summary>
-    /// Gets or sets the theme to style the editor with. Default is 'light' aka the 'toastui-editor.css'.
+    /// Gets or sets the theme to style the editor with. Default is <see cref="EditorThemes.Light"/> which is the style of "toastui-editor.css".
     /// </summary>
-    /// <remarks>
-    /// The theme can be 'light' or 'dark'.
-    /// </remarks>
-    public virtual string Theme { get; set; } = "light";
+    public virtual EditorThemes Theme { get; set; } = EditorThemes.Light;
 
     /// <summary>
     /// Gets or sets whether to focus the editor on creation. Default is <see langword="true"/>.

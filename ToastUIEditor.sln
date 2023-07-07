@@ -7,11 +7,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{3EFCFD32-EC2
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ToastUIEditor", "src\ToastUIEditor\ToastUIEditor.csproj", "{8D6E935A-3EDC-4774-95ED-1D4C2D7C71F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.WebAssembly", "samples\Sample.WebAssembly\Sample.WebAssembly.csproj", "{AF550182-86F1-4A49-960A-80CB77B0DA2D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.WebAssembly", "samples\Sample.WebAssembly\Sample.WebAssembly.csproj", "{AF550182-86F1-4A49-960A-80CB77B0DA2D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{73CA8193-E7DD-47DD-91E9-A3183F63AF53}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Server", "samples\Sample.Server\Sample.Server.csproj", "{3A6D3576-0D9F-4342-A9C2-C6C782DC3C69}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.Server", "samples\Sample.Server\Sample.Server.csproj", "{3A6D3576-0D9F-4342-A9C2-C6C782DC3C69}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "git", "git", "{F6BA15F6-D725-4678-B0DC-EB51B9D8A0C3}"
 	ProjectSection(SolutionItems) = preProject
@@ -19,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "git", "git", "{F6BA15F6-D72
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToastUIEditor.Generators", "src\ToastUIEditor.Generators\ToastUIEditor.Generators.csproj", "{F3C426CF-BC81-4EB3-A765-D535B545F889}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,6 +40,10 @@ Global
 		{3A6D3576-0D9F-4342-A9C2-C6C782DC3C69}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A6D3576-0D9F-4342-A9C2-C6C782DC3C69}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A6D3576-0D9F-4342-A9C2-C6C782DC3C69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3C426CF-BC81-4EB3-A765-D535B545F889}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3C426CF-BC81-4EB3-A765-D535B545F889}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3C426CF-BC81-4EB3-A765-D535B545F889}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3C426CF-BC81-4EB3-A765-D535B545F889}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -46,6 +52,7 @@ Global
 		{8D6E935A-3EDC-4774-95ED-1D4C2D7C71F0} = {3EFCFD32-EC2A-40B3-9A4D-32DD3FD98A29}
 		{AF550182-86F1-4A49-960A-80CB77B0DA2D} = {73CA8193-E7DD-47DD-91E9-A3183F63AF53}
 		{3A6D3576-0D9F-4342-A9C2-C6C782DC3C69} = {73CA8193-E7DD-47DD-91E9-A3183F63AF53}
+		{F3C426CF-BC81-4EB3-A765-D535B545F889} = {3EFCFD32-EC2A-40B3-9A4D-32DD3FD98A29}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0061DAEB-12EF-4726-8823-079AA281A99A}

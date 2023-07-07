@@ -201,7 +201,9 @@ public class Editor : InputBase<string>, IAsyncDisposable
         builder.AddAttribute(i++, "ChildContent", (RenderFragment)((RenderTreeBuilder b) =>
         {
             b.AddMarkupContent(i++, "<link href='https://uicdn.toast.com/editor/latest/toastui-editor.min.css' rel='stylesheet' />");
+            b.AddMarkupContent(i++, "<link href='https://uicdn.toast.com/editor/latest/theme/toastui-editor-dark.min.css' rel='stylesheet' />");
             b.AddMarkupContent(i++, "<link href='./_content/ToastUI.Editor/toastui-editor.min.css' rel='stylesheet' />");
+            b.AddMarkupContent(i++, "<link href='./_content/ToastUI.Editor/theme/toastui-editor-dark.min.css' rel='stylesheet' />");
         }));
         builder.CloseComponent();
 
@@ -276,10 +278,12 @@ public class Editor : InputBase<string>, IAsyncDisposable
     public virtual async Task Initialize()
     {
         _editorModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/ToastUI.Editor/interop.js");
+        _ = _editorModule.InvokeVoidAsync("setLanguages", EditorLanguage.Translations);
 
         Options.El = _element;
         Options.Events = _eventCallbackRefs.ToDictionary(i => i.Key, i => i.Value);
         Options.InitialValue = CurrentValueAsString ?? string.Empty;
+        Options.Language = EditorLanguage.GetMatchedLanguage(Options.Language);
         if (!string.IsNullOrEmpty(Placeholder))
         {
             Options.Placeholder = Placeholder;
@@ -296,10 +300,45 @@ public class Editor : InputBase<string>, IAsyncDisposable
     /// <param name="code">The code for I18N language.</param>
     /// <param name="data">The data for language.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
+    /// <exception cref="ArgumentException">code is <see langword="null"/> or empty.</exception>
+    /// <exception cref="ArgumentNullException">data is <see langword="null"/>.</exception>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask SetLanguage(string code, Dictionary<string, string> data)
     {
+        ThrowHelper.ThrowIfNullOrEmpty(code);
+        ThrowHelper.ThrowIfNull(data);
+
         EnsureEditorInstance();
-        return _editorInstance.InvokeVoidAsync("setLanguage", code, data);
+
+        EditorLanguage.AddTranslation(code, data);
+        return _editorModule.InvokeVoidAsync("setLanguage", code, data);
+    }
+
+    /// <summary>
+    /// Set language for editor. Multiple languages share the same language data, like en, en-US, en-GB.
+    /// </summary>
+    /// <param name="codes">The code for I18N language.</param>
+    /// <param name="data">The data for language.</param>
+    /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
+    /// <exception cref="ArgumentNullException">codes or data is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException">codes is empty.</exception>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
+    public virtual ValueTask SetLanguage(IEnumerable<string> codes, Dictionary<string, string> data)
+    {
+        ThrowHelper.ThrowIfNull(codes);
+        ThrowHelper.ThrowIfNull(data);
+
+        if (codes.Any())
+        {
+            EnsureEditorInstance();
+
+            foreach (var code in codes)
+            {
+                EditorLanguage.AddTranslation(code, data);
+            }
+            return _editorModule.InvokeVoidAsync("setLanguage", codes, data);
+        }
+        return ValueTask.CompletedTask;
     }
 
     /// <summary>
@@ -308,6 +347,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     /// <param name="mode">The mode to change.</param>
     /// <param name="withoutFocus">If true, the editor will not be focused after mode changed.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask ChangeMode(EditorModes mode, bool withoutFocus)
     {
         EnsureEditorInstance();
@@ -315,9 +355,10 @@ public class Editor : InputBase<string>, IAsyncDisposable
     }
 
     /// <summary>
-    /// Deternmine whether the editor is markdown mode.
+    /// Determine whether the editor is markdown mode.
     /// </summary>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation. The result is <see langword="true"/> if the editor is markdown mode, otherwise <see langword="false"/>.</returns>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask<bool> IsMarkdownMode()
     {
         EnsureEditorInstance();
@@ -328,6 +369,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     /// Get content from editor as markdown.
     /// </summary>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation. The result is the markdown content.</returns>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask<string> GetMarkdown()
     {
         EnsureEditorInstance();
@@ -340,16 +382,21 @@ public class Editor : InputBase<string>, IAsyncDisposable
     /// <param name="markdown">The markdown text.</param>
     /// <param name="cursorToEnd">Whether move cursor to contents end.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
+    /// <exception cref="ArgumentNullException">markdown is <see langword="null"/>.</exception>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask SetMarkdown(string markdown, bool cursorToEnd)
     {
+        ThrowHelper.ThrowIfNull(markdown);
+
         EnsureEditorInstance();
         return _editorInstance.InvokeVoidAsync("setMarkdown", markdown, cursorToEnd);
     }
 
     /// <summary>
-    /// Deternmine whether the editor is wysiwyg mode.
+    /// Determine whether the editor is WYSIWYG mode.
     /// </summary>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation. The result is <see langword="true"/> if the editor is wysiwyg mode, otherwise <see langword="false"/>.</returns>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask<bool> IsWysiwygMode()
     {
         EnsureEditorInstance();
@@ -360,6 +407,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     /// Get content from editor as html.
     /// </summary>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation. The result is the html content.</returns>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask<string> GetHTML()
     {
         EnsureEditorInstance();
@@ -372,20 +420,14 @@ public class Editor : InputBase<string>, IAsyncDisposable
     /// <param name="html">The html text.</param>
     /// <param name="cursorToEnd">Whether move cursor to contents end.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
+    /// <exception cref="ArgumentNullException">html is <see langword="null"/>.</exception>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask SetHTML(string html, bool cursorToEnd)
     {
+        ThrowHelper.ThrowIfNull(html);
+
         EnsureEditorInstance();
         return _editorInstance.InvokeVoidAsync("setHTML", html, cursorToEnd);
-    }
-
-    /// <summary>
-    /// Deternmine whether the editor is viewer mode.
-    /// </summary>
-    /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation. The result is <see langword="true"/> if the editor is viewer mode, otherwise <see langword="false"/>.</returns>
-    public virtual ValueTask<bool> IsViewer()
-    {
-        EnsureEditorInstance();
-        return _editorInstance.InvokeAsync<bool>("isViewer");
     }
 
     /// <summary>
@@ -393,6 +435,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     /// </summary>
     /// <param name="focus">Whether to focus the editor after moving cursor.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask MoveCursorToEnd(bool focus)
     {
         EnsureEditorInstance();
@@ -404,6 +447,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     /// </summary>
     /// <param name="focus">Whether to focus the editor after moving cursor.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask MoveCursorToStart(bool focus)
     {
         EnsureEditorInstance();
@@ -414,6 +458,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     /// Focus current editor.
     /// </summary>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask Focus()
     {
         EnsureEditorInstance();
@@ -424,6 +469,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     /// Blur current editor.
     /// </summary>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask Blur()
     {
         EnsureEditorInstance();
@@ -434,6 +480,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     /// Get editor's height.
     /// </summary>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation. The result is the editor's height in pixel.</returns>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask<string> GetHeight()
     {
         EnsureEditorInstance();
@@ -445,8 +492,12 @@ public class Editor : InputBase<string>, IAsyncDisposable
     /// </summary>
     /// <param name="height">The editor's height in pixel.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
+    /// <exception cref="ArgumentException">height is <see langword="null"/> or empty.</exception>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask SetHeight(string height)
     {
+        ThrowHelper.ThrowIfNullOrEmpty(height);
+
         EnsureEditorInstance();
         return _editorInstance.InvokeVoidAsync("setHeight", height);
     }
@@ -455,6 +506,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     /// Get editor's minimum height.
     /// </summary>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation. The result is the editor's min height in pixel.</returns>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask<string> GetMinHeight()
     {
         EnsureEditorInstance();
@@ -466,8 +518,12 @@ public class Editor : InputBase<string>, IAsyncDisposable
     /// </summary>
     /// <param name="minHeight">The editor's minimum height in pixel.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
+    /// <exception cref="ArgumentException">minHeight is <see langword="null"/> or empty.</exception>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask SetMinHeight(string minHeight)
     {
+        ThrowHelper.ThrowIfNullOrEmpty(minHeight);
+
         EnsureEditorInstance();
         return _editorInstance.InvokeVoidAsync("setMinHeight", minHeight);
     }
@@ -476,6 +532,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     /// Get editor's scroll position of the editor container.
     /// </summary>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation. The result is the scrollTop value of editor container.</returns>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask<double> GetScrollTop()
     {
         EnsureEditorInstance();
@@ -487,8 +544,15 @@ public class Editor : InputBase<string>, IAsyncDisposable
     /// </summary>
     /// <param name="value">The scrollTop value of editor container.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">value is less than 0.</exception>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask SetScrollTop(double value)
     {
+        if (value < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(value), value, "The value must be greater than or equal to 0.");
+        }
+
         EnsureEditorInstance();
         return _editorInstance.InvokeVoidAsync("setScrollTop", value);
     }
@@ -499,8 +563,19 @@ public class Editor : InputBase<string>, IAsyncDisposable
     /// <param name="start">The start position.</param>
     /// <param name="end">The end position.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation. The result is the selected text.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">start is less than 0. -or- end is less than 0 or less than start.</exception>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask<string> GetSelectedText(int start, int end)
     {
+        if (start < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(start), start, "The value must be greater than or equal to 0.");
+        }
+        if (end < 0 || end < start)
+        {
+            throw new ArgumentOutOfRangeException(nameof(end), end, "The value must be greater than or equal to 0 and greater than start.");
+        }
+
         EnsureEditorInstance();
         return _editorInstance.InvokeAsync<string>("getSelectedText", start, end);
     }
@@ -509,10 +584,11 @@ public class Editor : InputBase<string>, IAsyncDisposable
     /// Get current selection range in editor.
     /// </summary>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation. The result is the selection range.</returns>
-    /// <exception cref="InvalidOperationException">The editor is neither in markdown mode nor in wysiwyg mode.</exception>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized, or the editor is neither in markdown mode nor in wysiwyg mode.</exception>
     public virtual async ValueTask<(int CursorStart, int CursorEnd)> GetSelection()
     {
         EnsureEditorInstance();
+
         if (await IsMarkdownMode())
         {
             var range = await _editorInstance.InvokeAsync<int[][]>("getSelection");
@@ -535,8 +611,19 @@ public class Editor : InputBase<string>, IAsyncDisposable
     /// <param name="start">The start position.</param>
     /// <param name="end">The end position.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">start is less than 0. -or- end is less than 0 or less than start.</exception>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask SetSelection(int start, int end)
     {
+        if (start < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(start), start, "The value must be greater than or equal to 0.");
+        }
+        if (end < 0 || end < start)
+        {
+            throw new ArgumentOutOfRangeException(nameof(end), end, "The value must be greater than or equal to 0 and greater than start.");
+        }
+
         EnsureEditorInstance();
         return _editorInstance.InvokeVoidAsync("setSelection", start, end);
     }
@@ -546,8 +633,12 @@ public class Editor : InputBase<string>, IAsyncDisposable
     /// </summary>
     /// <param name="text">The text content.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
+    /// <exception cref="ArgumentException">text is <see langword="null"/> or empty.</exception>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask InsertText(string text)
     {
+        ThrowHelper.ThrowIfNullOrEmpty(text);
+
         EnsureEditorInstance();
         return _editorInstance.InvokeVoidAsync("insertText", text);
     }
@@ -559,8 +650,21 @@ public class Editor : InputBase<string>, IAsyncDisposable
     /// <param name="start">The start position.</param>
     /// <param name="end">The end position.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
+    /// <exception cref="ArgumentNullException">text is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">start is less than 0. -or- end is less than 0 or less than start.</exception>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask ReplaceSelection(string text, int start, int end)
     {
+        ThrowHelper.ThrowIfNull(text);
+        if (start < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(start), start, "The value must be greater than or equal to 0.");
+        }
+        if (end < 0 || end < start)
+        {
+            throw new ArgumentOutOfRangeException(nameof(end), end, "The value must be greater than or equal to 0 and greater than start.");
+        }
+
         EnsureEditorInstance();
         return _editorInstance.InvokeVoidAsync("replaceSelection", text, start, end);
     }
@@ -569,6 +673,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     /// Hide editor.
     /// </summary>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask Hide()
     {
         EnsureEditorInstance();
@@ -579,6 +684,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     /// Show editor.
     /// </summary>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask Show()
     {
         EnsureEditorInstance();
@@ -589,6 +695,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     /// Reset editor.
     /// </summary>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
+    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask Reset()
     {
         EnsureEditorInstance();
@@ -603,10 +710,10 @@ public class Editor : InputBase<string>, IAsyncDisposable
     /// Ensure the editor instance is not null.
     /// </summary>
     /// <exception cref="InvalidOperationException">The editor has not yet been initialized.</exception>
-    [MemberNotNull(nameof(_editorInstance))]
+    [MemberNotNull(nameof(_editorModule), nameof(_editorInstance))]
     private void EnsureEditorInstance()
     {
-        if (_editorInstance is null)
+        if (_editorModule is null || _editorInstance is null)
         {
             throw new InvalidOperationException("The editor has not yet been initialized.");
         }
