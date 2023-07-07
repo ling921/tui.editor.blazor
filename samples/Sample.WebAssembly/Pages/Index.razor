@@ -1,0 +1,30 @@
+﻿@page "/"
+
+<PageTitle>Index</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+<Editor @ref="editorRef" @bind-Value="content" Options="options" Placeholder="A sample editor." />
+
+<div>@content</div>
+
+<br />
+
+<button class="btn btn-primary" @onclick="ShowHTML">Show HTML</button>
+<div>@html</div>
+
+@code {
+    Editor editorRef = default!;
+    EditorOptions options = new();
+    string content = "Hello, world!";
+    string html = "";
+
+    async Task ShowHTML()
+    {
+        html = await editorRef.GetHTML();
+    }
+}
