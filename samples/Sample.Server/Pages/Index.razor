@@ -1,0 +1,46 @@
+﻿@page "/"
+
+<PageTitle>Index</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+<Editor @ref="editorRef"
+        @bind-Value="content"
+        Options="options"
+        Placeholder="A sample editor."
+        OnLoad="MarkdownChanged"
+        OnChange="MarkdownChanged" />
+
+<Viewer Value="@markdown" EnableLogging />
+
+ <br />
+
+ <button class="btn btn-primary" @onclick="ShowHTML">Show HTML</button>
+ <div>@html</div>
+
+ @code {
+    Editor editorRef = default!;
+    EditorOptions options = new()
+        {
+            PreviewStyle = PreviewStyles.Vertical,
+            Language = "zh-CN",
+            Theme = EditorThemes.Auto,
+        };
+    string content = "Hello, world!";
+    string markdown = "";
+    string html = "";
+
+    async Task ShowHTML()
+    {
+        html = await editorRef.GetHTML();
+    }
+
+    async Task MarkdownChanged()
+    {
+        markdown = await editorRef.GetMarkdown();
+    }
+}
