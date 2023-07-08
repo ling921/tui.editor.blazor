@@ -16,8 +16,8 @@ public class Editor : InputBase<string>, IAsyncDisposable
 
     [Inject] IJSRuntime JS { get; set; } = default!;
     ElementReference _element;
-    IJSObjectReference? _editorModule;
-    IJSObjectReference? _editorInstance;
+    IJSObjectReference? _module;
+    IJSObjectReference? _instance;
     readonly List<KeyValuePair<string, DotNetObjectReference<EditorInvokeHelper>>> _eventCallbackRefs;
 
     #endregion Private Properties and Fields
@@ -124,10 +124,17 @@ public class Editor : InputBase<string>, IAsyncDisposable
     {
         _eventCallbackRefs = new();
 
-        var loadRef = DotNetObjectReference.Create(new EditorInvokeHelper(() =>
+        var loadRef = DotNetObjectReference.Create(new EditorInvokeHelper(async () =>
         {
             _ = Log("OnLoad is fired.");
-            return OnLoad.InvokeAsync();
+            // JavaScript editor will fire 'OnLoad' event before '_instance' assignment. So wait for '_instance' assignment.
+            var time = 3 * 1000;
+            while (_instance is null && time > 0)
+            {
+                await Task.Delay(100);
+                time -= 100;
+            }
+            _ = OnLoad.InvokeAsync();
         }));
         var changeRef = DotNetObjectReference.Create(new EditorInvokeHelper(async (editorType) =>
         {
@@ -259,6 +266,19 @@ public class Editor : InputBase<string>, IAsyncDisposable
 #endif
     }
 
+    /// <summary>
+    /// Ensure the editor instance is not null.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The editor has not yet been initialized.</exception>
+    [MemberNotNull(nameof(_module), nameof(_instance))]
+    protected void EnsureEditorInstance()
+    {
+        if (_module is null || _instance is null)
+        {
+            throw new InvalidOperationException("The editor has not yet been initialized.");
+        }
+    }
+
     /// <inheritdoc />
     protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out string result, [NotNullWhen(false)] out string? validationErrorMessage)
     {
@@ -277,8 +297,8 @@ public class Editor : InputBase<string>, IAsyncDisposable
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public virtual async Task Initialize()
     {
-        _editorModule = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/ToastUI.Editor/interop.js");
-        _ = _editorModule.InvokeVoidAsync("setLanguages", EditorLanguage.Translations);
+        _module = await JS.InvokeAsync<IJSObjectReference>("import", "./_content/ToastUI.Editor/interop.js");
+        _ = _module.InvokeVoidAsync("ToastUI.setLanguages", EditorLanguage.Translations);
 
         Options.El = _element;
         Options.Events = _eventCallbackRefs.ToDictionary(i => i.Key, i => i.Value);
@@ -289,56 +309,9 @@ public class Editor : InputBase<string>, IAsyncDisposable
             Options.Placeholder = Placeholder;
         }
 
-        _editorInstance = await _editorModule.InvokeAsync<IJSObjectReference>("initEditor", Options);
+        _instance = await _module.InvokeAsync<IJSObjectReference>("ToastUI.factory", Options);
 
         _ = Log("Editor instance is created.");
-    }
-
-    /// <summary>
-    /// Set language for editor.
-    /// </summary>
-    /// <param name="code">The code for I18N language.</param>
-    /// <param name="data">The data for language.</param>
-    /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
-    /// <exception cref="ArgumentException">code is <see langword="null"/> or empty.</exception>
-    /// <exception cref="ArgumentNullException">data is <see langword="null"/>.</exception>
-    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
-    public virtual ValueTask SetLanguage(string code, Dictionary<string, string> data)
-    {
-        ThrowHelper.ThrowIfNullOrEmpty(code);
-        ThrowHelper.ThrowIfNull(data);
-
-        EnsureEditorInstance();
-
-        EditorLanguage.AddTranslation(code, data);
-        return _editorModule.InvokeVoidAsync("setLanguage", code, data);
-    }
-
-    /// <summary>
-    /// Set language for editor. Multiple languages share the same language data, like en, en-US, en-GB.
-    /// </summary>
-    /// <param name="codes">The code for I18N language.</param>
-    /// <param name="data">The data for language.</param>
-    /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
-    /// <exception cref="ArgumentNullException">codes or data is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException">codes is empty.</exception>
-    /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
-    public virtual ValueTask SetLanguage(IEnumerable<string> codes, Dictionary<string, string> data)
-    {
-        ThrowHelper.ThrowIfNull(codes);
-        ThrowHelper.ThrowIfNull(data);
-
-        if (codes.Any())
-        {
-            EnsureEditorInstance();
-
-            foreach (var code in codes)
-            {
-                EditorLanguage.AddTranslation(code, data);
-            }
-            return _editorModule.InvokeVoidAsync("setLanguage", codes, data);
-        }
-        return ValueTask.CompletedTask;
     }
 
     /// <summary>
@@ -351,7 +324,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     public virtual ValueTask ChangeMode(EditorModes mode, bool withoutFocus)
     {
         EnsureEditorInstance();
-        return _editorInstance.InvokeVoidAsync("changeMode", mode.ToString(), withoutFocus);
+        return _instance.InvokeVoidAsync("instance.changeMode", mode.ToString(), withoutFocus);
     }
 
     /// <summary>
@@ -362,7 +335,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     public virtual ValueTask<bool> IsMarkdownMode()
     {
         EnsureEditorInstance();
-        return _editorInstance.InvokeAsync<bool>("isMarkdownMode");
+        return _instance.InvokeAsync<bool>("instance.isMarkdownMode");
     }
 
     /// <summary>
@@ -373,7 +346,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     public virtual ValueTask<string> GetMarkdown()
     {
         EnsureEditorInstance();
-        return _editorInstance.InvokeAsync<string>("getMarkdown");
+        return _instance.InvokeAsync<string>("instance.getMarkdown");
     }
 
     /// <summary>
@@ -389,7 +362,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
         ThrowHelper.ThrowIfNull(markdown);
 
         EnsureEditorInstance();
-        return _editorInstance.InvokeVoidAsync("setMarkdown", markdown, cursorToEnd);
+        return _instance.InvokeVoidAsync("instance.setMarkdown", markdown, cursorToEnd);
     }
 
     /// <summary>
@@ -400,7 +373,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     public virtual ValueTask<bool> IsWysiwygMode()
     {
         EnsureEditorInstance();
-        return _editorInstance.InvokeAsync<bool>("isWysiwygMode");
+        return _instance.InvokeAsync<bool>("instance.isWysiwygMode");
     }
 
     /// <summary>
@@ -411,7 +384,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     public virtual ValueTask<string> GetHTML()
     {
         EnsureEditorInstance();
-        return _editorInstance.InvokeAsync<string>("getHTML");
+        return _instance.InvokeAsync<string>("instance.getHTML");
     }
 
     /// <summary>
@@ -427,7 +400,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
         ThrowHelper.ThrowIfNull(html);
 
         EnsureEditorInstance();
-        return _editorInstance.InvokeVoidAsync("setHTML", html, cursorToEnd);
+        return _instance.InvokeVoidAsync("instance.setHTML", html, cursorToEnd);
     }
 
     /// <summary>
@@ -439,7 +412,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     public virtual ValueTask MoveCursorToEnd(bool focus)
     {
         EnsureEditorInstance();
-        return _editorInstance.InvokeVoidAsync("moveCursorToEnd", focus);
+        return _instance.InvokeVoidAsync("instance.moveCursorToEnd", focus);
     }
 
     /// <summary>
@@ -451,7 +424,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     public virtual ValueTask MoveCursorToStart(bool focus)
     {
         EnsureEditorInstance();
-        return _editorInstance.InvokeVoidAsync("moveCursorToStart", focus);
+        return _instance.InvokeVoidAsync("instance.moveCursorToStart", focus);
     }
 
     /// <summary>
@@ -462,7 +435,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     public virtual ValueTask Focus()
     {
         EnsureEditorInstance();
-        return _editorInstance.InvokeVoidAsync("focus");
+        return _instance.InvokeVoidAsync("instance.focus");
     }
 
     /// <summary>
@@ -473,7 +446,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     public virtual ValueTask Blur()
     {
         EnsureEditorInstance();
-        return _editorInstance.InvokeVoidAsync("blur");
+        return _instance.InvokeVoidAsync("instance.blur");
     }
 
     /// <summary>
@@ -484,7 +457,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     public virtual ValueTask<string> GetHeight()
     {
         EnsureEditorInstance();
-        return _editorInstance.InvokeAsync<string>("getHeight");
+        return _instance.InvokeAsync<string>("instance.getHeight");
     }
 
     /// <summary>
@@ -499,7 +472,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
         ThrowHelper.ThrowIfNullOrEmpty(height);
 
         EnsureEditorInstance();
-        return _editorInstance.InvokeVoidAsync("setHeight", height);
+        return _instance.InvokeVoidAsync("instance.setHeight", height);
     }
 
     /// <summary>
@@ -510,7 +483,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     public virtual ValueTask<string> GetMinHeight()
     {
         EnsureEditorInstance();
-        return _editorInstance.InvokeAsync<string>("getMinHeight");
+        return _instance.InvokeAsync<string>("instance.getMinHeight");
     }
 
     /// <summary>
@@ -525,7 +498,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
         ThrowHelper.ThrowIfNullOrEmpty(minHeight);
 
         EnsureEditorInstance();
-        return _editorInstance.InvokeVoidAsync("setMinHeight", minHeight);
+        return _instance.InvokeVoidAsync("instance.setMinHeight", minHeight);
     }
 
     /// <summary>
@@ -536,7 +509,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     public virtual ValueTask<double> GetScrollTop()
     {
         EnsureEditorInstance();
-        return _editorInstance.InvokeAsync<double>("getScrollTop");
+        return _instance.InvokeAsync<double>("instance.getScrollTop");
     }
 
     /// <summary>
@@ -554,7 +527,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
         }
 
         EnsureEditorInstance();
-        return _editorInstance.InvokeVoidAsync("setScrollTop", value);
+        return _instance.InvokeVoidAsync("instance.setScrollTop", value);
     }
 
     /// <summary>
@@ -577,7 +550,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
         }
 
         EnsureEditorInstance();
-        return _editorInstance.InvokeAsync<string>("getSelectedText", start, end);
+        return _instance.InvokeAsync<string>("instance.getSelectedText", start, end);
     }
 
     /// <summary>
@@ -591,12 +564,12 @@ public class Editor : InputBase<string>, IAsyncDisposable
 
         if (await IsMarkdownMode())
         {
-            var range = await _editorInstance.InvokeAsync<int[][]>("getSelection");
+            var range = await _instance.InvokeAsync<int[][]>("instance.getSelection");
             return (range[0][1], range[1][1]);
         }
         else if (await IsWysiwygMode())
         {
-            var range = await _editorInstance.InvokeAsync<int[]>("getSelection");
+            var range = await _instance.InvokeAsync<int[]>("instance.getSelection");
             return (range[0], range[1]);
         }
         else
@@ -625,7 +598,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
         }
 
         EnsureEditorInstance();
-        return _editorInstance.InvokeVoidAsync("setSelection", start, end);
+        return _instance.InvokeVoidAsync("instance.setSelection", start, end);
     }
 
     /// <summary>
@@ -640,7 +613,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
         ThrowHelper.ThrowIfNullOrEmpty(text);
 
         EnsureEditorInstance();
-        return _editorInstance.InvokeVoidAsync("insertText", text);
+        return _instance.InvokeVoidAsync("instance.insertText", text);
     }
 
     /// <summary>
@@ -666,7 +639,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
         }
 
         EnsureEditorInstance();
-        return _editorInstance.InvokeVoidAsync("replaceSelection", text, start, end);
+        return _instance.InvokeVoidAsync("instance.replaceSelection", text, start, end);
     }
 
     /// <summary>
@@ -677,7 +650,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     public virtual ValueTask Hide()
     {
         EnsureEditorInstance();
-        return _editorInstance.InvokeVoidAsync("hide");
+        return _instance.InvokeVoidAsync("instance.hide");
     }
 
     /// <summary>
@@ -688,7 +661,7 @@ public class Editor : InputBase<string>, IAsyncDisposable
     public virtual ValueTask Show()
     {
         EnsureEditorInstance();
-        return _editorInstance.InvokeVoidAsync("show");
+        return _instance.InvokeVoidAsync("instance.show");
     }
 
     /// <summary>
@@ -699,27 +672,10 @@ public class Editor : InputBase<string>, IAsyncDisposable
     public virtual ValueTask Reset()
     {
         EnsureEditorInstance();
-        return _editorInstance.InvokeVoidAsync("reset");
+        return _instance.InvokeVoidAsync("instance.reset");
     }
 
     #endregion Public Methods
-
-    #region Private Methods
-
-    /// <summary>
-    /// Ensure the editor instance is not null.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">The editor has not yet been initialized.</exception>
-    [MemberNotNull(nameof(_editorModule), nameof(_editorInstance))]
-    private void EnsureEditorInstance()
-    {
-        if (_editorModule is null || _editorInstance is null)
-        {
-            throw new InvalidOperationException("The editor has not yet been initialized.");
-        }
-    }
-
-    #endregion Private Methods
 
     #region Dispose Methods
 
@@ -728,14 +684,14 @@ public class Editor : InputBase<string>, IAsyncDisposable
     {
         _ = Log("DisposeAsync");
 
-        if (_editorInstance is not null)
+        if (_instance is not null)
         {
-            await _editorInstance.InvokeVoidAsync("destroy");
-            await _editorInstance.DisposeAsync();
+            await _instance.InvokeVoidAsync("destroy");
+            await _instance.DisposeAsync();
         }
-        if (_editorModule is not null)
+        if (_module is not null)
         {
-            await _editorModule.DisposeAsync();
+            await _module.DisposeAsync();
         }
 
         // The editor instance has already dispose the callback reference, here is to ensure that all instances are disposed.

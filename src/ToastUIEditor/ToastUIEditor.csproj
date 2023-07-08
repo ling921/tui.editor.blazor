@@ -4,9 +4,27 @@
     <TargetFrameworks>net6.0;net7.0;net8.0;</TargetFrameworks>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyName>ToastUI.Editor</AssemblyName>
     <RootNamespace>ToastUI</RootNamespace>
+    <AssemblyName>ToastUI.Editor</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageOutputPath>.nuget</PackageOutputPath>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>ToastUIEditor.Blazor</PackageId>
+    <PackageVersion>0.1.0</PackageVersion>
+    <Authors>ling921;</Authors>
+    <Description>Blazor wrapper for ToastUI Editor</Description>
+    <Copyright>Copyright © 2022-2023 LingDev All rights reserved.</Copyright>
+    <PackageProjectUrl>https://github.com/ling921/tui.editor.blazor</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ling921/tui.editor.blazor</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>tuieditor;editor;blazor;blazorcomponent;</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,7 +46,13 @@
   <ItemGroup>
     <AdditionalFiles Include="wwwroot\i18n\*.js" />
     <ProjectReference Include="..\ToastUIEditor.Generators\ToastUIEditor.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    <None Remove="wwwroot\i18n\**" />
+    <Content Remove="wwwroot\i18n\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\resources\icon.png" Link="icon.png" Pack="true" PackagePath="\"/>
+    <Content Include="..\..\LICENSE" Link="LICENSE" Pack="true" PackagePath="\"/>
+    <Content Include="..\..\README.md" Link="LICENSE" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
 </Project>

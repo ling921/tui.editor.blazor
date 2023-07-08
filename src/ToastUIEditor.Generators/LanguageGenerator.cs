@@ -48,7 +48,7 @@ namespace ToastUI
         foreach (var translation in translations)
         {
             sb.Append(@$"
-            AddTranslation(""{translation.Key}"", new Dictionary<string, string>
+            Translations[""{translation.Key}""] = new Dictionary<string, string>
             {{");
 
             foreach (var item in translation.Value)
@@ -58,7 +58,7 @@ namespace ToastUI
             }
 
             sb.Append(@"
-            });");
+            };");
         }
 
         sb.Append(@"
