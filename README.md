@@ -1,22 +1,24 @@
 # ToastUI Editor Blazor
 
-`ToastUIEditor.Blazor` is a Blazor component that provides a Markdown editor based on the [tui.editor](https://github.com/nhn/tui.editor) library.
+`tui.editor.blazor` is a Blazor component that provides a Markdown editor based on the [tui.editor](https://github.com/nhn/tui.editor) library.
+
 
 ## Installation
 
 Install the package using following command:
 
 ``` Package Manager
-Install-Package ToastUIEditor.Blazor
+Install-Package ToastUIEditor
 ```
 
 or
 
 ``` powershell
-dotnet add package ToastUIEditor.Blazor
+dotnet add package ToastUIEditor
 ```
 
 or just use nuget package manager.
+
 
 ## Usage
 
@@ -26,11 +28,13 @@ or just use nuget package manager.
 @using ToastUI
 ```
 
+
 2. Use the `Editor` component in your Blazor page or component
 
 ``` razor
 <Editor @bind-Value="content" Options="@options" />
 ```
+
 
 - `@bind-Value`: Binds the editor's content to a string property in your Blazor component.
 - `Options`: Sets the configuration options for the editor. Refer to the `EditorOptions` class for available options.
@@ -43,31 +47,29 @@ or just use nuget package manager.
 
 - `Value`: Sets the content to be displayed in the viewer. It will update automatically when `content` changes.
 
-1. Handle the available events by specifying event callbacks
+
+4. Handle the available events by specifying event callbacks
 
 ``` razor
 <Editor @bind-Value="content"
-        OnLoad="HandleLoad"
-        OnChange="HandleChange"
-        OnCaretChange="HandleCaretChange"
-        OnFocus="HandleFocus"
-        OnBlur="HandleBlur"
-        OnKeydown="HandleKeydown"
-        OnKeyup="HandleKeyup"
+        Load="HandleLoad"
+        Change="HandleChange"
+        CaretChange="HandleCaretChange"
+        Focus="HandleFocus"
+        Blur="HandleBlur"
+        KeyDown="HandleKeyDown"
+        KeyUp="HandleKeyUp"
         BeforePreviewRender="HandleBeforePreviewRender"
-        BeforeConvertWysiwygToMarkdown="HandleBeforeConvertWysiwygToMarkdown" />
+        BeforeConvertWYSIWYGToMarkdown="HandleBeforeConvertWYSIWYGToMarkdown" />
 
 <Viewer Value="content"
-        OnLoad="HandleLoad"
-        OnChange="HandleChange"
-        OnCaretChange="HandleCaretChange"
-        OnFocus="HandleFocus"
-        OnBlur="HandleBlur" />
+        Load="HandleLoad"
+        Change="HandleChange"
+        UpdatePreview="HandleUpdatePreview" />
 ```
 
 These events are the same as the native public events, and the parameters are detailed in the code comments.
 
-> Notes: It seems that events for `Viewer` are not working in original library.
 
 5. Access the `Editor` or `Viewer` instance to invoke methods
 
@@ -98,9 +100,11 @@ Most of all native methods have been implemented. Refer to the Editor class for 
 
 6. Add custom language
 
-Use `EditorLanguage.Add` method to add custom language.
+- Use `Editor.SetLanguage` static method to add custom language.
+- Use `Editor.SetDefaultLanguage` static method to set default language, it will be used when no language is set in `EditorOptions`.
 
-You can check `EditorLanguage` class for more details.
+> Note: Please make sure Editor.SetLanguage and Editor.SetDefaultLanguage are called before `Editor` component is rendered.
+
 
 ## Implemented Features
 
@@ -110,8 +114,8 @@ You can check `EditorLanguage` class for more details.
 - [x] `Editor` and `Viewer` instance methods
 - [ ] Toolbar with custom button
 - [ ] Add command and execute command
-- [ ] Add widget and set widget rules
-- [ ] Link attributes
+- [x] Add widget and set widget rules
+- [x] Link attributes
 - [ ] Custom markdown renderer
 - [ ] Custom HTML renderer
 - [ ] Custom HTML Sanitizer

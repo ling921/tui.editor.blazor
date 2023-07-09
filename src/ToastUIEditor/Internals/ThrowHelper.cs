@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace ToastUI;
+namespace ToastUI.Internals;
 
 /// <summary>
 /// Helper class for exception throwing.

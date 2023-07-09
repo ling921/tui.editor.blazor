@@ -12,10 +12,10 @@ Welcome to your new app.
         @bind-Value="content"
         Options="options"
         Placeholder="A sample editor."
-        OnLoad="MarkdownChanged"
-        OnChange="MarkdownChanged" />
+        Load="MarkdownChanged"
+        Change="MarkdownChanged" />
 
-<Viewer Value="@markdown" EnableLogging />
+<Viewer Value="@markdown" />
 
  <br />
 
@@ -26,9 +26,9 @@ Welcome to your new app.
     Editor editorRef = default!;
     EditorOptions options = new()
         {
-            PreviewStyle = PreviewStyles.Vertical,
+            PreviewStyle = PreviewStyle.Vertical,
             Language = "zh-CN",
-            Theme = EditorThemes.Auto,
+            Theme = Theme.Auto,
         };
     string content = "Hello, world!";
     string markdown = "";

@@ -1,5 +1,63 @@
 import "./toastui-editor-all.min.js";
 
+function getPrefersColorScheme() {
+  const colorScheme = window.matchMedia("(prefers-color-scheme: dark)");
+  return colorScheme.matches ? "dark" : "light";
+}
+
+function getKeyboardEventArgs(event) {
+  return {
+    key: event.key,
+    code: event.code,
+    location: event.location,
+    repeat: event.repeat,
+    ctrlKey: event.ctrlKey,
+    shiftKey: event.shiftKey,
+    altKey: event.altKey,
+    metaKey: event.metaKey,
+    type: event.type,
+  };
+}
+
+function decycle(obj, stack = new Set(), refs = [], idMap = new WeakMap()) {
+  if (!obj || typeof obj !== "object") return obj;
+
+  if (stack.has(obj)) {
+    const index = refs.indexOf(obj);
+    const id = `${index + 1}`;
+    idMap.set(obj, id);
+    return { $ref: id };
+  }
+
+  let newObj;
+  const id = refs.length;
+  refs.push(obj);
+
+  if (Array.isArray(obj)) {
+    newObj = [];
+    stack.add(obj);
+    for (let i = 0; i < obj.length; i++)
+      newObj[i] = decycle(obj[i], stack, refs, idMap);
+    stack.delete(obj);
+  } else {
+    newObj = {};
+    stack.add(obj);
+    for (let key in obj) {
+      if (obj.hasOwnProperty(key))
+        newObj[key] = decycle(obj[key], stack, refs, idMap);
+    }
+    stack.delete(obj);
+  }
+
+  if (idMap.has(obj)) newObj.$id = idMap.get(obj);
+
+  return newObj;
+}
+
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 export class ToastUI {
   instance = null;
   type = "editor";
@@ -9,71 +67,22 @@ export class ToastUI {
       throw new Error("element is required in options");
     }
 
-    options.events = Object.assign(
-      {},
-      ...Object.keys(options.events || {}).map((key) => {
-        const handler = options.events[key];
-        this.dotNetRefs.push(handler);
-        return {
-          [key]: (...args) => {
-            // console.log(`${this.type} event ${key} fired`, args);
-            if (key === "load") args = [];
-            // 1. convert keyboard event to blazor event
-            // 2. fill null until args.length to 2 for invoking C# method
-            for (let i = 0; i < 2; i++) {
-              if (args.length <= i) {
-                args.push(null);
-                continue;
-              }
-              const arg = args[i];
-              if (arg instanceof KeyboardEvent) {
-                args[i] = {
-                  key: arg.key,
-                  code: arg.code,
-                  location: arg.location,
-                  repeat: arg.repeat,
-                  ctrlKey: arg.ctrlKey,
-                  shiftKey: arg.shiftKey,
-                  altKey: arg.altKey,
-                  metaKey: arg.metaKey,
-                  type: arg.type,
-                };
-              }
-            }
-            handler.invokeMethodAsync("InvokeAsync", ...args);
-
-            // these events needs to return the value
-            if (
-              key === "beforePreviewRender" ||
-              key === "beforeConvertWysiwygToMarkdown"
-            ) {
-              return args[0];
-            }
-          },
-        };
-      })
-    );
-
-    if (options.hasOwnProperty("previewStyle")) {
-      options.previewStyle = options.previewStyle?.toLowerCase() || "tab";
-    }
-    if (options.hasOwnProperty("initialEditType")) {
-      options.initialEditType =
-        options.initialEditType?.toLowerCase() || "markdown";
-    } else {
-      options.viewer = true;
+    if (options.viewer) {
+      options.events = this._viewerEvents(options.ref);
       this.type = "viewer";
+    } else {
+      options.events = this._editorEvents(options.ref);
+      options.widgetRules = this._resolveEditorWidgetRules(options.widgetRules);
+      this.type = "editor";
     }
-    let theme = options.theme?.toLowerCase();
-    if (theme === "auto") {
-      const colorScheme = window.matchMedia("(prefers-color-scheme: dark)");
-      theme = colorScheme.matches ? "dark" : "light";
-    }
-    options.theme = theme === "dark" ? "dark" : "light";
 
-    console.log(`ToastUI initial options: `, options);
+    options.theme =
+      options.theme === "auto"
+        ? getPrefersColorScheme()
+        : options.theme || "light";
+
+    console.log(`Init ${this.type} with options: `, options);
     this.instance = toastui.Editor.factory(options);
-    window.editor = this.instance;
   }
   static factory(options) {
     return new ToastUI(options);
@@ -88,6 +97,92 @@ export class ToastUI {
   }
   static setDefaultLanguage(code) {
     toastui.Editor.i18n.setCode(code);
+  }
+  _commonEvents(dotNetRef) {
+    if (!dotNetRef) {
+      throw new Error("ref in options is required.");
+    }
+    return {
+      load: (editor) => {
+        dotNetRef.invokeMethodAsync("load");
+      },
+    };
+  }
+  _editorEvents(dotNetRef) {
+    return {
+      ...this._commonEvents(dotNetRef),
+      change: (editorType) => {
+        const value =
+          editorType === "wysiwyg"
+            ? this.instance.getHTML()
+            : this.instance.getMarkdown();
+        dotNetRef.invokeMethodAsync("change", editorType, value);
+      },
+      caretChange: (editorType) => {
+        dotNetRef.invokeMethodAsync("caretChange", editorType);
+      },
+      focus: (editorType) => {
+        dotNetRef.invokeMethodAsync("focus", editorType);
+      },
+      blur: (editorType) => {
+        dotNetRef.invokeMethodAsync("blur", editorType);
+      },
+      keydown: (editorType, ev) => {
+        dotNetRef.invokeMethodAsync(
+          "keydown",
+          editorType,
+          getKeyboardEventArgs(ev)
+        );
+      },
+      keyup: (editorType, ev) => {
+        dotNetRef.invokeMethodAsync(
+          "keyup",
+          editorType,
+          getKeyboardEventArgs(ev)
+        );
+      },
+      beforePreviewRender: (html) => {
+        dotNetRef.invokeMethodAsync("beforePreviewRender", html);
+        return html;
+      },
+      beforeConvertWysiwygToMarkdown: (markdownText) => {
+        dotNetRef.invokeMethodAsync(
+          "beforeConvertWysiwygToMarkdown",
+          markdownText
+        );
+        return markdownText;
+      },
+    };
+  }
+  _viewerEvents(dotNetRef) {
+    return {
+      ...this._commonEvents(dotNetRef),
+      change: (...args) => {
+        console.log("viewer change", args);
+        dotNetRef.invokeMethodAsync("change", args);
+      },
+      updatePreview: (editResult) => {
+        dotNetRef.invokeMethodAsync("updatePreview", decycle(editResult));
+      },
+    };
+  }
+  _resolveEditorWidgetRules(widgetRules) {
+    if (widgetRules && Array.isArray(widgetRules)) {
+      return widgetRules.map((item) => {
+        this.dotNetRefs.push(item.ref);
+        return {
+          rule: new RegExp(item.rule, "m"),
+          toDOM: (text) => {
+            const domText = item.ref.invokeMethod("toDOM", text);
+            const element = document.createElement("span");
+            element.innerHTML = domText;
+            return element;
+          }
+        };
+      });
+    } else {
+      return null;
+    }
   }
   destroy() {
     this.instance?.destroy();
