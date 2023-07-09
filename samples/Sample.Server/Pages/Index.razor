@@ -1,4 +1,4 @@
-﻿@page "/"
+@page "/"
 
 <PageTitle>Index</PageTitle>
 
@@ -15,14 +15,14 @@ Welcome to your new app.
         Load="MarkdownChanged"
         Change="MarkdownChanged" />
 
-<Viewer Value="@markdown" />
+<Viewer Value="@markdown" EnableLogging />
 
- <br />
+<br />
 
- <button class="btn btn-primary" @onclick="ShowHTML">Show HTML</button>
- <div>@html</div>
+<button class="btn btn-primary" @onclick="ShowHTML">Show HTML</button>
+<div>@html</div>
 
- @code {
+@code {
     Editor editorRef = default!;
     EditorOptions options = new()
         {
