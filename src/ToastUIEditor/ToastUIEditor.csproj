@@ -13,17 +13,17 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageId>ToastUIEditor.Blazor</PackageId>
-    <PackageVersion>0.1.0</PackageVersion>
+    <PackageId>ToastUIEditor</PackageId>
+    <PackageVersion>0.1.1</PackageVersion>
     <Authors>ling921;</Authors>
-    <Description>Blazor wrapper for ToastUI Editor</Description>
-    <Copyright>Copyright © 2022-2023 LingDev All rights reserved.</Copyright>
+    <Description>Blazor wrapper for ToastUI Editor, see README.md file for more details.</Description>
+    <Copyright>Copyright © ling921 All rights reserved.</Copyright>
     <PackageProjectUrl>https://github.com/ling921/tui.editor.blazor</PackageProjectUrl>
     <RepositoryUrl>https://github.com/ling921/tui.editor.blazor</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageTags>tuieditor;editor;blazor;blazorcomponent;</PackageTags>
+    <PackageTags>tuieditor;editor;blazor;blazorcomponent;webassembly;</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
@@ -44,15 +44,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="wwwroot\i18n\*.js" />
+    <AdditionalFiles Include="assets\i18n\*.js" />
+    <None Remove="EditorOptions.cs~RF2ec04040.TMP" />
     <ProjectReference Include="..\ToastUIEditor.Generators\ToastUIEditor.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    <Content Remove="wwwroot\i18n\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\..\resources\icon.png" Link="icon.png" Pack="true" PackagePath="\"/>
-    <Content Include="..\..\LICENSE" Link="LICENSE" Pack="true" PackagePath="\"/>
-    <Content Include="..\..\README.md" Link="LICENSE" Pack="true" PackagePath="\"/>
+    <Content Include="..\..\resources\icon.png" Pack="true" PackagePath="\" Visible="false" />
+    <Content Include="..\..\LICENSE" Pack="true" PackagePath="\" Visible="false" />
+    <Content Include="..\..\README.md" Pack="true" PackagePath="\" Visible="false" />
   </ItemGroup>
 
 </Project>

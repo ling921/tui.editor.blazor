@@ -1,4 +1,4 @@
-﻿@page "/"
+@page "/"
 
 <PageTitle>Index</PageTitle>
 
@@ -12,23 +12,23 @@ Welcome to your new app.
         @bind-Value="content"
         Options="options"
         Placeholder="A sample editor."
-        OnLoad="MarkdownChanged"
-        OnChange="MarkdownChanged" />
+        Load="MarkdownChanged"
+        Change="MarkdownChanged" />
 
 <Viewer Value="@markdown" EnableLogging />
 
- <br />
+<br />
 
- <button class="btn btn-primary" @onclick="ShowHTML">Show HTML</button>
- <div>@html</div>
+<button class="btn btn-primary" @onclick="ShowHTML">Show HTML</button>
+<div>@html</div>
 
- @code {
+@code {
     Editor editorRef = default!;
     EditorOptions options = new()
         {
-            PreviewStyle = PreviewStyles.Vertical,
+            PreviewStyle = PreviewStyle.Vertical,
             Language = "zh-CN",
-            Theme = EditorThemes.Auto,
+            Theme = Theme.Auto,
         };
     string content = "Hello, world!";
     string markdown = "";

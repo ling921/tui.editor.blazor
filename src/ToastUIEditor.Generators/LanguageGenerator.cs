@@ -40,9 +40,9 @@ using System.Collections.Generic;
 
 namespace ToastUI
 {
-    partial class EditorLanguage
+    partial class Editor
     {
-        static EditorLanguage()
+        static Editor()
         {");
 
         foreach (var translation in translations)
