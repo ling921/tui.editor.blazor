@@ -8,7 +8,8 @@ namespace ToastUI.Internals;
 internal static class ThrowHelper
 {
     /// <summary>
-    /// Throws <see cref="ArgumentException"/> if <paramref name="value"/> is <see langword="null"/> or empty.
+    /// Throws <see cref="ArgumentException"/> if <paramref name="value"/> is <see langword="null"/>
+    /// or empty.
     /// </summary>
     /// <param name="value">The value to check.</param>
     /// <param name="paramName">The parameter name.</param>

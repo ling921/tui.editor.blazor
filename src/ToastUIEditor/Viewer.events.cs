@@ -16,7 +16,8 @@ partial class Viewer
     /// An event that is fired when the editor's content changes.
     /// </summary>
     /// <remarks>
-    /// Do not know how to trigger this event. To watch the content changes, use <see cref="UpdatePreview"/> event.
+    /// Do not know how to trigger this event. To watch the content changes, use <see
+    /// cref="UpdatePreview"/> event.
     /// </remarks>
     [Parameter]
     public EventCallback<string> Change { get; set; }
@@ -24,9 +25,7 @@ partial class Viewer
     /// <summary>
     /// An event that is fired when markdown is updated.
     /// </summary>
-    /// <remarks>
-    /// The parameter of the event is the nodes' information of the viewer.
-    /// </remarks>
+    /// <remarks>The parameter of the event is the nodes' information of the viewer.</remarks>
     [Parameter]
     public EventCallback<JsonElement> UpdatePreview { get; set; }
 
@@ -36,7 +35,8 @@ partial class Viewer
     [JSInvokable("load")]
     public async Task InvokeLoadAsync()
     {
-        // JavaScript viewer will fire 'load' event before '_instance' assignment. So wait for '_instance' assignment.
+        // JavaScript viewer will fire 'load' event before '_instance' assignment. So wait for
+        // '_instance' assignment.
         var time = 3 * 1000;
         while (_instance is null && time > 0)
         {

@@ -26,7 +26,7 @@ public partial class Editor : InputBase<string>, IAsyncDisposable
     [Parameter]
     public string? Placeholder { get; set; }
 
-    /// <inheritdoc />
+    /// <inheritdoc/>
     protected override void BuildRenderTree(RenderTreeBuilder builder)
     {
         var i = 0;
@@ -56,7 +56,7 @@ public partial class Editor : InputBase<string>, IAsyncDisposable
         builder.CloseElement();
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc/>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -65,11 +65,10 @@ public partial class Editor : InputBase<string>, IAsyncDisposable
         }
         else
         {
-
         }
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc/>
     protected override bool TryParseValueFromString(string? value, [MaybeNullWhen(false)] out string result, [NotNullWhen(false)] out string? validationErrorMessage)
     {
         result = value ?? string.Empty;

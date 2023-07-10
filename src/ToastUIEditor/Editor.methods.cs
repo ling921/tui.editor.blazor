@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using System.Diagnostics.CodeAnalysis;
-using ToastUI.Internals;
 
 namespace ToastUI;
 
@@ -9,6 +8,7 @@ partial class Editor
 {
     [Inject]
     private IJSRuntime JS { get; set; } = default!;
+
     private ElementReference _element;
     private IJSObjectReference? _module;
     private IJSObjectReference? _instance;
@@ -54,7 +54,10 @@ partial class Editor
     /// <summary>
     /// Determine whether the editor is markdown mode.
     /// </summary>
-    /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation. The result is <see langword="true"/> if the editor is markdown mode, otherwise <see langword="false"/>.</returns>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation. The result is <see
+    /// langword="true"/> if the editor is markdown mode, otherwise <see langword="false"/>.
+    /// </returns>
     /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask<bool> IsMarkdownMode()
     {
@@ -65,7 +68,10 @@ partial class Editor
     /// <summary>
     /// Get content from editor as markdown.
     /// </summary>
-    /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation. The result is the markdown content.</returns>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation. The result is the
+    /// markdown content.
+    /// </returns>
     /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask<string> GetMarkdown()
     {
@@ -92,7 +98,10 @@ partial class Editor
     /// <summary>
     /// Determine whether the editor is WYSIWYG mode.
     /// </summary>
-    /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation. The result is <see langword="true"/> if the editor is wysiwyg mode, otherwise <see langword="false"/>.</returns>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation. The result is <see
+    /// langword="true"/> if the editor is wysiwyg mode, otherwise <see langword="false"/>.
+    /// </returns>
     /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask<bool> IsWysiwygMode()
     {
@@ -103,7 +112,9 @@ partial class Editor
     /// <summary>
     /// Get content from editor as html.
     /// </summary>
-    /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation. The result is the html content.</returns>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation. The result is the html content.
+    /// </returns>
     /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask<string> GetHTML()
     {
@@ -176,7 +187,10 @@ partial class Editor
     /// <summary>
     /// Get editor's height.
     /// </summary>
-    /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation. The result is the editor's height in pixel.</returns>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation. The result is the
+    /// editor's height in pixel.
+    /// </returns>
     /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask<string> GetHeight()
     {
@@ -202,7 +216,10 @@ partial class Editor
     /// <summary>
     /// Get editor's minimum height.
     /// </summary>
-    /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation. The result is the editor's min height in pixel.</returns>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation. The result is the
+    /// editor's min height in pixel.
+    /// </returns>
     /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask<string> GetMinHeight()
     {
@@ -228,7 +245,10 @@ partial class Editor
     /// <summary>
     /// Get editor's scroll position of the editor container.
     /// </summary>
-    /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation. The result is the scrollTop value of editor container.</returns>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation. The result is the
+    /// scrollTop value of editor container.
+    /// </returns>
     /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask<double> GetScrollTop()
     {
@@ -259,8 +279,13 @@ partial class Editor
     /// </summary>
     /// <param name="start">The start position.</param>
     /// <param name="end">The end position.</param>
-    /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation. The result is the selected text.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">start is less than 0. -or- end is less than 0 or less than start.</exception>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation. The result is the
+    /// selected text.
+    /// </returns>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// start is less than 0. -or- end is less than 0 or less than start.
+    /// </exception>
     /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask<string> GetSelectedText(int start, int end)
     {
@@ -280,8 +305,14 @@ partial class Editor
     /// <summary>
     /// Get current selection range in editor.
     /// </summary>
-    /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation. The result is the selection range.</returns>
-    /// <exception cref="InvalidOperationException">The editor instance is not initialized, or the editor is neither in markdown mode nor in wysiwyg mode.</exception>
+    /// <returns>
+    /// A <see cref="ValueTask"/> representing the asynchronous operation. The result is the
+    /// selection range.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">
+    /// The editor instance is not initialized, or the editor is neither in markdown mode nor in
+    /// wysiwyg mode.
+    /// </exception>
     public virtual async ValueTask<(int CursorStart, int CursorEnd)> GetSelection()
     {
         EnsureInstance();
@@ -308,7 +339,9 @@ partial class Editor
     /// <param name="start">The start position.</param>
     /// <param name="end">The end position.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">start is less than 0. -or- end is less than 0 or less than start.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// start is less than 0. -or- end is less than 0 or less than start.
+    /// </exception>
     /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask SetSelection(int start, int end)
     {
@@ -348,7 +381,9 @@ partial class Editor
     /// <param name="end">The end position.</param>
     /// <returns>A <see cref="ValueTask"/> representing the asynchronous operation.</returns>
     /// <exception cref="ArgumentNullException">text is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">start is less than 0. -or- end is less than 0 or less than start.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// start is less than 0. -or- end is less than 0 or less than start.
+    /// </exception>
     /// <exception cref="InvalidOperationException">The editor instance is not initialized.</exception>
     public virtual ValueTask ReplaceSelection(string text, int start, int end)
     {

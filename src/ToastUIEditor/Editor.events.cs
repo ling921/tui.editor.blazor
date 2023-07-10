@@ -16,7 +16,8 @@ partial class Editor
     /// An event that is fired when the editor's content changes.
     /// </summary>
     /// <remarks>
-    /// The parameter of the original event is the content type of the editor, which is changed to the text corresponding to the content type of the editor in this component.
+    /// The parameter of the original event is the content type of the editor, which is changed to
+    /// the text corresponding to the content type of the editor in this component.
     /// </remarks>
     [Parameter]
     public EventCallback<string> Change { get; set; }
@@ -24,27 +25,21 @@ partial class Editor
     /// <summary>
     /// An event that is fired when format change by cursor position.
     /// </summary>
-    /// <remarks>
-    /// The parameter of the event is the content type of the editor.
-    /// </remarks>
+    /// <remarks>The parameter of the event is the content type of the editor.</remarks>
     [Parameter]
     public EventCallback<string> CaretChange { get; set; }
 
     /// <summary>
     /// An event that is fired when editor get focus.
     /// </summary>
-    /// <remarks>
-    /// The parameter of the event is the content type of the editor.
-    /// </remarks>
+    /// <remarks>The parameter of the event is the content type of the editor.</remarks>
     [Parameter]
     public EventCallback<string> Focus { get; set; }
 
     /// <summary>
     /// An event that is fired when editor loose focus.
     /// </summary>
-    /// <remarks>
-    /// The parameter of the event is the content type of the editor.
-    /// </remarks>
+    /// <remarks>The parameter of the event is the content type of the editor.</remarks>
     [Parameter]
     public EventCallback<string> Blur { get; set; }
 
@@ -52,8 +47,8 @@ partial class Editor
     /// An event that is fired when the key is pressed in editor.
     /// </summary>
     /// <remarks>
-    /// The original event has two parameters, the first is the content type of the editor, and the second is the keyboard event.
-    /// The event only keeps the second parameter.
+    /// The original event has two parameters, the first is the content type of the editor, and the
+    /// second is the keyboard event. The event only keeps the second parameter.
     /// </remarks>
     [Parameter]
     public EventCallback<KeyboardEventArgs> KeyDown { get; set; }
@@ -62,8 +57,8 @@ partial class Editor
     /// An event that is fired when the key is released in editor.
     /// </summary>
     /// <remarks>
-    /// The original event has two parameters, the first is the content type of the editor, and the second is the keyboard event.
-    /// The event only keeps the second parameter.
+    /// The original event has two parameters, the first is the content type of the editor, and the
+    /// second is the keyboard event. The event only keeps the second parameter.
     /// </remarks>
     [Parameter]
     public EventCallback<KeyboardEventArgs> KeyUp { get; set; }
@@ -71,18 +66,14 @@ partial class Editor
     /// <summary>
     /// An event that is fired before rendering the markdown preview with html string.
     /// </summary>
-    /// <remarks>
-    /// The parameter of the event is the html string.
-    /// </remarks>
+    /// <remarks>The parameter of the event is the html string.</remarks>
     [Parameter]
     public EventCallback<string> BeforePreviewRender { get; set; }
 
     /// <summary>
     /// An event that is fired before converting WYSIWYG to markdown with markdown text.
     /// </summary>
-    /// <remarks>
-    /// The parameter of the event is the markdown text.
-    /// </remarks>
+    /// <remarks>The parameter of the event is the markdown text.</remarks>
     [Parameter]
     public EventCallback<string> BeforeConvertWysiwygToMarkdown { get; set; }
 
@@ -92,7 +83,8 @@ partial class Editor
     [JSInvokable("load")]
     public async Task InvokeLoadAsync()
     {
-        // JavaScript editor will fire 'load' event before '_instance' assignment. So wait for '_instance' assignment.
+        // JavaScript editor will fire 'load' event before '_instance' assignment. So wait for
+        // '_instance' assignment.
         var time = 3 * 1000;
         while (_instance is null && time > 0)
         {

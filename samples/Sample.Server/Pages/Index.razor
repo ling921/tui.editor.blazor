@@ -1,4 +1,5 @@
 @page "/"
+@using System.Text.RegularExpressions;
 
 <PageTitle>Index</PageTitle>
 
@@ -8,14 +9,16 @@ Welcome to your new app.
 
 <SurveyPrompt Title="How is Blazor working for you?" />
 
+<InputText @bind-Value="content" />
+
 <Editor @ref="editorRef"
-        @bind-Value="content"
+@bind-Value="content"
         Options="options"
         Placeholder="A sample editor."
         Load="MarkdownChanged"
         Change="MarkdownChanged" />
 
-<Viewer Value="@markdown" EnableLogging />
+<Viewer Value="@markdown" />
 
 <br />
 
@@ -29,8 +32,20 @@ Welcome to your new app.
             PreviewStyle = PreviewStyle.Vertical,
             Language = "zh-CN",
             Theme = Theme.Auto,
+            //WidgetRules = new WidgetRule[]
+            //{
+            //    new WidgetRule(
+            //        @"\bw\w+?d\b",
+            //        text => Regex.Replace(text, @"(w\w+?d)", "<span style=\"color: red;\">$1</span>")
+            //    ),
+            //},
+            LinkAttributes = new()
+            {
+                { LinkAttributeNames.Target, "_blank" },
+                { LinkAttributeNames.Rel, "nofollow"}
+            },
         };
-    string content = "Hello, world!";
+    string content = "Hello, world! \n[tui.editor](https://github.com/nhn/tui.editor)";
     string markdown = "";
     string html = "";
 
