@@ -1,5 +1,9 @@
 import "./toastui-editor-all.min.js";
 
+function isBlazorWebAssembly() {
+  return document.querySelector('script[src*="blazor.webassembly.js"]') !== null;
+}
+
 function getPrefersColorScheme() {
   const colorScheme = window.matchMedia("(prefers-color-scheme: dark)");
   return colorScheme.matches ? "dark" : "light";
@@ -54,10 +58,6 @@ function decycle(obj, stack = new Set(), refs = [], idMap = new WeakMap()) {
   return newObj;
 }
 
-function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
 export class ToastUI {
   instance = null;
   type = "editor";
@@ -69,6 +69,7 @@ export class ToastUI {
 
     if (options.viewer) {
       options.events = this._viewerEvents(options.ref);
+      options.widgetRules = [];
       this.type = "viewer";
     } else {
       options.events = this._editorEvents(options.ref);
@@ -173,7 +174,14 @@ export class ToastUI {
         return {
           rule: new RegExp(item.rule, "m"),
           toDOM: (text) => {
-            const domText = item.ref.invokeMethod("toDOM", text);
+            let domText = '';
+            if (isBlazorWebAssembly()) {
+              domText = item.ref.invokeMethod("toDOM", text);
+            } else {
+              window.alert("'WidgetRules' is not supported in Blazor server.")
+              throw new Error("'toDOM' method is syncahronous in 'WidgetRule' interface, but Blazor server is not supported call synchronous method from JS.");
+            }
+
             const element = document.createElement("span");
             element.innerHTML = domText;
             return element;
@@ -181,7 +189,7 @@ export class ToastUI {
         };
       });
     } else {
-      return null;
+      return [];
     }
   }
   destroy() {

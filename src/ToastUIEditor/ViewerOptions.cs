@@ -12,29 +12,23 @@ namespace ToastUI;
 public class ViewerOptions
 {
     /// <summary>
-    /// Gets or sets the reference to the <see cref="Viewer"/> component.
+    /// Gets or sets the reference for the <see cref="Viewer"/> component.
     /// </summary>
-    /// <remarks>
-    /// The property is set by the <see cref="Viewer"/> component automatically.
-    /// </remarks>
+    /// <remarks>The property is set by the <see cref="Viewer"/> component automatically.</remarks>
     [JsonPropertyName("ref")]
     public virtual DotNetObjectReference<Viewer> Reference { get; set; } = default!;
 
     /// <summary>
     /// Gets or sets the element reference that will be used to initialize the viewer.
     /// </summary>
-    /// <remarks>
-    /// The property is set by the <see cref="Viewer"/> component automatically.
-    /// </remarks>
+    /// <remarks>The property is set by the <see cref="Viewer"/> component automatically.</remarks>
     [JsonPropertyName("el")]
     public virtual ElementReference Element { get; set; } = default!;
 
     /// <summary>
     /// Gets or sets the initial content for the viewer.
     /// </summary>
-    /// <remarks>
-    /// The property is set by the <see cref="Viewer"/> component using bound value.
-    /// </remarks>
+    /// <remarks>The property is set by the <see cref="Viewer"/> component using bound value.</remarks>
     public virtual string? InitialValue { get; set; }
 
     /// <summary>
@@ -45,9 +39,7 @@ public class ViewerOptions
     /// <summary>
     /// Gets or sets the plugins. Default is <see langword="null"/>.
     /// </summary>
-    /// <remarks>
-    /// This is not implemented yet.
-    /// </remarks>
+    /// <remarks>This is not implemented yet.</remarks>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public virtual object[]? Plugins { get; set; }
 
@@ -57,7 +49,8 @@ public class ViewerOptions
     public virtual bool ExtendedAutolinks { get; set; }
 
     /// <summary>
-    /// Gets or sets the link attributes of anchor element that should be rel, target, hreflang, type. Default is <see langword="null"/>.
+    /// Gets or sets the link attributes of anchor element that should be rel, target, hreflang,
+    /// type. Default is <see langword="null"/>.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonConverter(typeof(EnumDictionaryKeyJsonConverter<LinkAttributeNames, string>))]
@@ -66,9 +59,7 @@ public class ViewerOptions
     /// <summary>
     /// Gets or sets the custom markdown-HTML or markdown-WYSIWYG renderer. Default is <see langword="null"/>.
     /// </summary>
-    /// <remarks>
-    /// This is not implemented yet.
-    /// </remarks>
+    /// <remarks>This is not implemented yet.</remarks>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public virtual object? CustomHTMLRenderer { get; set; }
 
@@ -80,9 +71,7 @@ public class ViewerOptions
     /// <summary>
     /// Gets or sets the custom HTML sanitizer. Default is <see langword="null"/>.
     /// </summary>
-    /// <remarks>
-    /// This is not implemented yet.
-    /// </remarks>
+    /// <remarks>This is not implemented yet.</remarks>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public virtual object? CustomHTMLSanitizer { get; set; }
 
@@ -97,7 +86,8 @@ public class ViewerOptions
     public virtual bool UsageStatistics { get; set; } = true;
 
     /// <summary>
-    /// Gets or sets the theme to style the viewer with. Default is <see cref="Theme.Light"/> which is the style of "toastui-editor.css".
+    /// Gets or sets the theme to style the viewer with. Default is <see cref="Theme.Light"/> which
+    /// is the style of "toastui-editor.css".
     /// </summary>
     public virtual Theme Theme { get; set; } = Theme.Light;
 }

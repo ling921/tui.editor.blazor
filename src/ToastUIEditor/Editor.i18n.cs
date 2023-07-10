@@ -1,6 +1,4 @@
-﻿using ToastUI.Internals;
-
-namespace ToastUI;
+﻿namespace ToastUI;
 
 partial class Editor
 {
@@ -10,6 +8,7 @@ partial class Editor
     public const string DEFAULT_LANGUAGE = "en-US";
 
     private static string DefaultLanguage { get; set; } = DEFAULT_LANGUAGE;
+
     private static Dictionary<string, IDictionary<string, string>> Translations { get; set; } = new(StringComparer.OrdinalIgnoreCase)
     {
         { DEFAULT_LANGUAGE, new Dictionary<string, string>() }
@@ -48,8 +47,12 @@ partial class Editor
     /// Set default language.
     /// </summary>
     /// <param name="code">The language code.</param>
-    /// <exception cref="ArgumentException">Thrown if <paramref name="code"/> is <see langword="null"/> or empty.</exception>
-    /// <exception cref="InvalidOperationException">Thrown if <paramref name="code"/> is not supported.</exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown if <paramref name="code"/> is <see langword="null"/> or empty.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if <paramref name="code"/> is not supported.
+    /// </exception>
     public static void SetDefaultLanguage(string code)
     {
         ThrowHelper.ThrowIfNullOrEmpty(code);

@@ -8,7 +8,7 @@ namespace ToastUI.Extend;
 public enum LinkAttributeNames
 {
     /// <summary>
-    /// The rel attribute.  
+    /// The rel attribute.
     /// </summary>
     [JsonValue("rel")]
     Rel,

@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.JSInterop;
-using System.Diagnostics.CodeAnalysis;
-using ToastUI.Internals;
 
 namespace ToastUI;
 
@@ -12,7 +9,7 @@ namespace ToastUI;
 /// </summary>
 public partial class Viewer : ComponentBase, IAsyncDisposable
 {
-    string? _previousValue;
+    private string? _previousValue;
 
     /// <summary>
     /// Gets or sets the value of the viewer.
@@ -29,7 +26,7 @@ public partial class Viewer : ComponentBase, IAsyncDisposable
     /// </summary>
     [Parameter(CaptureUnmatchedValues = true)] public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; } = default!;
 
-    /// <inheritdoc />
+    /// <inheritdoc/>
     protected override async Task OnParametersSetAsync()
     {
         if (_previousValue != Value)
@@ -42,7 +39,7 @@ public partial class Viewer : ComponentBase, IAsyncDisposable
         }
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc/>
     protected override void BuildRenderTree(RenderTreeBuilder builder)
     {
         var i = 0;
@@ -62,7 +59,7 @@ public partial class Viewer : ComponentBase, IAsyncDisposable
         builder.CloseElement();
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc/>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -71,7 +68,7 @@ public partial class Viewer : ComponentBase, IAsyncDisposable
         }
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc/>
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
         await DisposeJavaScriptObjects();
