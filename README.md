@@ -64,7 +64,6 @@ or just use nuget package manager.
 
 <Viewer Value="content"
         Load="HandleLoad"
-        Change="HandleChange"
         UpdatePreview="HandleUpdatePreview" />
 ```
 
@@ -76,11 +75,11 @@ These events are the same as the native public events, and the parameters are de
 ``` razor
 <Editor @ref="editorRef" @bind-Value="markdown" Options="@options" />
 
-<Editor @ref="viewerRef" Value="markdown" />
+<Viewer @ref="viewerRef" Value="markdown" />
 
 <button @onclick="HandlePreview">Preview</button>
 
-<Editor @ref="viewerRef2"/>
+<Viewer @ref="viewerRef2"/>
 
 @code {
     Editor editorRef = default!;
