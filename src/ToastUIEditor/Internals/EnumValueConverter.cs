@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ToastUI.Internals;
+namespace ToastUI;
 
 internal sealed class EnumValueJsonConverter<T> : JsonConverter<T> where T : Enum
 {

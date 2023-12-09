@@ -1,7 +1,7 @@
 ﻿using Microsoft.JSInterop;
 using System.Text.Json.Serialization;
 
-namespace ToastUI.Extend;
+namespace ToastUI;
 
 /// <summary>
 /// Represents a rule for a widget.

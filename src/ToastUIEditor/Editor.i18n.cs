@@ -65,7 +65,7 @@ partial class Editor
                 return;
             }
         }
-        throw new InvalidOperationException($"Language '{code}' is not supported. Please use 'Add(...)' method to add language.");
+        throw new InvalidOperationException($"Language '{code}' is not supported. Please use 'SetLanguage(...)' method to add language.");
     }
 
     private static string GetMatchedLanguageOrDefault(string? code)

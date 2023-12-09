@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using System.Text.Json.Serialization;
-using ToastUI.Extend;
-using ToastUI.Internals;
 
 namespace ToastUI;
 
