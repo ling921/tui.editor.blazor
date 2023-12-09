@@ -1,6 +1,4 @@
-﻿using ToastUI.Internals;
-
-namespace ToastUI.Extend;
+﻿namespace ToastUI;
 
 /// <summary>
 /// Represents the link attribute names.

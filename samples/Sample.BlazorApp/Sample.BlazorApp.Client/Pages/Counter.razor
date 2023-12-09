@@ -1,0 +1,66 @@
+﻿@page "/counter"
+@using ToastUI
+@rendermode InteractiveAuto
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+<br />
+
+<InputText @bind-Value="content" />
+
+<Editor @ref="editorRef"
+        @bind-Value="content"
+        Options="options"
+        Placeholder="A sample editor."
+        Load="MarkdownChanged"
+        Change="MarkdownChanged" />
+
+<Viewer Value="@markdown" />
+
+<br />
+
+<button class="btn btn-primary" @onclick="ShowHTML">Show HTML</button>
+<div>@html</div>
+
+@code {
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+
+
+    Editor editorRef = default!;
+    EditorOptions options = new()
+    {
+        PreviewStyle = PreviewStyle.Vertical,
+        Language = "zh-CN",
+        Theme = Theme.Auto,
+        LinkAttributes = new()
+        {
+            { LinkAttributeNames.Target, "_blank" },
+            { LinkAttributeNames.Rel, "nofollow"}
+        },
+    };
+
+    string content = "Hello, world! \n[tui.editor](https://github.com/nhn/tui.editor)";
+    string markdown = "";
+    string html = "";
+
+    async Task ShowHTML()
+    {
+        html = await editorRef.GetHTML();
+    }
+
+    async Task MarkdownChanged()
+    {
+        markdown = await editorRef.GetMarkdown();
+    }
+}
