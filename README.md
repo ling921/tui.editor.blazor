@@ -1,4 +1,4 @@
-# ToastUI Editor Blazor
+# ToastUI Editor Blazor [![NuGet](https://img.shields.io/nuget/v/ToastUIEditor.svg)](https://www.nuget.org/packages/ToastUIEditor/)
 
 `tui.editor.blazor` is a Blazor component that provides a Markdown editor based on the [tui.editor](https://github.com/nhn/tui.editor) library.
 
