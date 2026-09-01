@@ -67,5 +67,6 @@ partial class Viewer
         {
             await _module.DisposeAsync();
         }
+        Options.Reference?.Dispose();
     }
 }
