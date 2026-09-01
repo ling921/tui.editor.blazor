@@ -25,7 +25,7 @@ dotnet add package ToastUIEditor
 }
 ```
 
-组件支持通过 `@ref` 访问编辑器/查看器事件和方法。更多 API 请查看 NuGet 包说明和源码中的 XML 文档。
+组件支持通过 `@ref` 访问编辑器和查看器的事件与方法。完整 API 请参考源码中的 XML 文档。
 
 ## 开发
 
@@ -33,8 +33,6 @@ dotnet add package ToastUIEditor
 dotnet build ToastUIEditor.sln --configuration Release
 dotnet test tests/ToastUIEditor.Tests/ToastUIEditor.Tests.csproj --configuration Release
 ```
-
-GitHub Actions 会构建和测试 Pull Request；发布 GitHub Release 或手动运行发布工作流即可创建并发布 NuGet 包。
 
 ## 许可证
 

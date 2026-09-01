@@ -14,7 +14,7 @@
 
   <PropertyGroup>
     <PackageId>ToastUIEditor</PackageId>
-    <VersionPrefix>1.1.1</VersionPrefix>
+    <VersionPrefix>1.1.0</VersionPrefix>
     <Authors>ling921;</Authors>
     <Description>Blazor wrapper for ToastUI Editor, see README.md file for more details.</Description>
     <Copyright>Copyright © ling921 All rights reserved.</Copyright>
@@ -22,7 +22,7 @@
     <RepositoryUrl>https://github.com/ling921/tui.editor.blazor</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageIcon>icon.png</PackageIcon>
-    <PackageReadmeFile>README.nuget.md</PackageReadmeFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>tuieditor;editor;blazor;blazorcomponent;webassembly;</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
@@ -59,8 +59,8 @@
   <ItemGroup>
     <Content Include="..\..\resources\icon.png" Pack="true" PackagePath="\" Visible="false" />
     <Content Include="..\..\LICENSE" Pack="true" PackagePath="\" Visible="false" />
-    <Content Include="..\..\README.nuget.md" Pack="true" PackagePath="\" Visible="false" />
-    <Content Include="..\..\README.nuget.zh-CN.md" Pack="true" PackagePath="\" Visible="false" />
+    <Content Include="README.md" Pack="true" PackagePath="\" Visible="false" />
+    <Content Include="README.zh-CN.md" Pack="true" PackagePath="\" Visible="false" />
   </ItemGroup>
 
 </Project>
