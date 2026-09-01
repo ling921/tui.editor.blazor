@@ -2,6 +2,20 @@
 
 `tui.editor.blazor` is a Blazor component that provides a Markdown editor based on the [tui.editor](https://github.com/nhn/tui.editor) library.
 
+Supports .NET 9 and .NET 10 for Blazor Server and Blazor WebAssembly applications.
+
+## Development
+
+```shell
+dotnet build ToastUIEditor.sln --configuration Release
+dotnet test tests/ToastUIEditor.Tests/ToastUIEditor.Tests.csproj --configuration Release
+```
+
+Packages are built automatically by GitHub Actions for pushes and pull requests. A NuGet
+publication can be triggered by publishing a GitHub Release (the tag is used as the package
+version) or manually from the `Publish NuGet Package` workflow. The repository must have a
+`NUGET_API_KEY` secret configured for publishing.
+
 
 ## Installation
 

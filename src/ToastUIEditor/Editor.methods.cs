@@ -454,5 +454,6 @@ partial class Editor
         {
             await _module.DisposeAsync();
         }
+        Options.Reference?.Dispose();
     }
 }

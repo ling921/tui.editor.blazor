@@ -91,23 +91,23 @@ partial class Editor
             await Task.Delay(100);
             time -= 100;
         }
-        _ = Load.InvokeAsync();
+        await Load.InvokeAsync();
     }
 
     /// <summary>
     /// Do not call this method directly. This method is called by JavaScript.
     /// </summary>
     [JSInvokable("change")]
-    public Task InvokeChangeAsync(string editorType, string value)
+    public async Task InvokeChangeAsync(string editorType, string value)
     {
         if (value != CurrentValueAsString)
         {
             CurrentValueAsString = value;
             StateHasChanged();
-            _ = ValueChanged.InvokeAsync(value);
-            _ = Change.InvokeAsync(value);
+            await ValueChanged.InvokeAsync(value);
+            await Change.InvokeAsync(value);
         }
-        return Task.CompletedTask;
+        await Task.CompletedTask;
     }
 
     /// <summary>

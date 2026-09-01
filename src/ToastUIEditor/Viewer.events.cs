@@ -43,7 +43,7 @@ partial class Viewer
             await Task.Delay(100);
             time -= 100;
         }
-        _ = Load.InvokeAsync();
+        await Load.InvokeAsync();
     }
 
     /// <summary>
