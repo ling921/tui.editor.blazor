@@ -21,6 +21,7 @@ env:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   publish:
@@ -46,6 +47,11 @@ jobs:
           args=(src/ToastUIEditor/ToastUIEditor.csproj --configuration Release --no-restore --output "$NUGET_DIRECTORY" -p:ContinuousIntegrationBuild=true)
           if [ -n "$version" ]; then args+=("-p:Version=$version"); fi
           dotnet pack "${args[@]}"
+      - name: NuGet login (OIDC to temporary API key)
+        uses: NuGet/login@v1
+        id: nuget-login
+        with:
+          user: ${{ secrets.NUGET_USER }}
       - name: Publish to NuGet.org
         shell: bash
         run: |
@@ -55,5 +61,5 @@ jobs:
             exit 1
           fi
           while IFS= read -r package; do
-            dotnet nuget push "$package" --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+            dotnet nuget push "$package" --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
           done <<< "$packages"
